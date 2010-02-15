@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% load i18n annotatetags %}
+
+{% block body %}
+<h1>Latest</h1>
+    {% get_latest_annotations as latest %}
+    {% for annotation in latest %}
+    <div style="padding:3px;border:2px solid {{ annotation.color }};">
+    <p style="float:right;width:49%;">
+        <em>{{ annotation.flag_value }}</em>
+        {% if annotation.user %}{{ annotation.user }}{% endif %}
+        <span style="background:#ddd">{{ annotation.comment|truncatewords:13|urlizetrunc:25 }}</span>
+        <a href="{{ annotation.get_absolute_url }}">&rarr;go to annotation</a></p>
+    <p style="width:49%;"><span{% if annotation.color %} style="background-color:{{ annotation.color }}"{% endif %}>&bdquo;{{ annotation.selection|truncatewords:13 }}&ldquo;</span></p>
+    <div style="clear:right;"></div>
+    </div>
+    
+    {% endfor %}
+<h1>All Texts</h1>
+{% get_annotations_for tbas as annotation_dict %}
+{% for key,obj in annotation_dict.items %}
+    <div style="width:100%">
+    <h2>Object ID: {{ key }}</h2>
+        <div class="obj-{{ key }}" style="width:50%;float:left;">
+            {% if obj.annotations %}
+                <div class="text_content" id="annotations-{{ key }}_content">
+                    <blockquote id="annotationtext_{{ key }}" class="entry-content">{{ obj.annotations.0.text|simple_formatting }}</blockquote>
+                </div>
+            {% endif %}
+        </div>
+        <div style="width:50%;float:right;">
+            <a href="#annotationform-{{ key }}" class="annotationform-link annotating" id="selectable-{{ key }}">Annotate</a>
+            <div class="annotating annotation_content" id="annotations-{{ key }}">
+                {% with obj.annotations as annotations %}
+                    {% for annotation in annotations %}
+                        {% include "annotatetext/_annotation.html" %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+            <div class="annotationform" id="annotationform-{{ key }}">
+                <form action="{% url annotatetext-post_annotation %}" method="post" accept-charset="utf-8" id="annotationrealform-{{ key }}" class="annotationrealform">
+                {% with obj.form as annotation_form %}
+                    <span class="arrowhint">&#8592;Select Part of Text</span>
+                    <p class="selectionhint" id="selectionhint-{{ key }}">No Selection</p>
+                    <p><span class="hideme">
+                    <label for="selection_start-{{ speech_part.id }}">Start at </label>
+                    <input type="text" size="3" value="" name="selection_start" id="selection_start-{{ speech_part.id }}"/>
+                    <label for="selection_end-{{ speech_part.id }}">End at </label>
+                    <input type="text" size="3" value="" name="selection_end" id="selection_end-{{ speech_part.id }}"/></span>
+                    <label>Type of Annotation:</label>
+                        {{ annotation_form.flags }}
+                    </p>
+                    {{ annotation_form.comment }}
+                    <div>
+                        <input type="text" size="6" name="color" id="annotationcolor-{{ speech_part.id }}" value="#99ccff"/>{{ annotation_form.object_id }}{{ annotation_form.content_type }}<input type="hidden" name="lengthcheck" value="{{ obj.annotations.0.text|length }}"/><input type="hidden" name="next" value="{{ next }}"/><input type="submit" value="Save Annotation">
+                    </div>
+                {% endwith %}
+                </form>
+            </div>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ MEDIA_URL }}annotatetext/annotate.css" type="text/css" media="screen" charset="utf-8">
+{% endblock %}
+
+{% block extra_javascript %}
+    <script src="{{ MEDIA_URL }}annotatetext/annotate.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+    $(function(){
+        $(".annotationform").hide();
+        $(".annotation_content").each(function(){
+            var annoid = $(this).attr("id").split("-")[1];
+            annotation_objects[annoid] = new Annotations(annoid);
+        });
+        for(var a in annotation_objects){
+            annotation_objects[a].importQuotes();
+            annotation_objects[a].insertQuotes();
+        }
+        $(".annotationform-link").click(function(e){
+          e.preventDefault();
+          var annoid = $(this).attr("id").split("-")[1];
+          annotation_objects[annoid].toggleSelectView();
+          if($("#annotations-"+annoid).css("display")=="none"){
+            $("#annotationform-"+annoid).hide();
+            $("#annotations-"+annoid).show();
+            $(this).text("Annotate");
+            $("#annotationrealform-"+annoid)[0].reset();
+            $("#editable-"+annoid).show();
+            if(annotation_objects[annoid].annotation_count >0){
+              $("#annotationtoolbox-"+annoid).show();
+            }
+          } else{
+            $(this).text("Cancel");
+            $("#annotationform-"+annoid).show();
+            $("#annotations-"+annoid).hide();
+/*          BYOColorpicker
+            if(!$("#annotationcolor-"+annoid).hasClass("colorpicking")){
+              $("#annotationcolor-"+annoid).colorPicker();
+            }
+*/
+            $("#editable-"+annoid).hide();
+            $("#annotationtoolbox-"+annoid).hide();
+          }
+        });
+      $(".markall").click(function(e){
+        var aid = $(this).attr("id").split("-")[1];
+        if($(this).attr('checked')){
+          annotation_objects[aid].updateDefaultAnnotationColor("self");
+        } else{
+          annotation_objects[aid].updateDefaultAnnotationColor("inherit");
+        }
+      });
+      $(".annotationrealform").submit(function(e){
+        e.preventDefault();
+        var id = $(this).attr("id").split("-")[1];
+        if($("#selection_start-"+id).val()=="" || $("#selection_end-"+id).val()==""){
+            alert("Please make a selection.");
+          return false;
+        }
+        var data = $(this).serializeArray();
+        $.post($(this).attr("action"), data, function(data){var myid=id; newAnnotationCallback(data, myid);});
+        $("#selectable-"+id).click();
+        return false;
+      });
+      $(".reallydelete").live("submit", function(e){
+        return confirm('Really delete this?');
+      });
+      $(".annotationflagselect").change(function(e){
+        var id = $(this).parents("form").attr("id").split("-")[1];
+        var val = parseInt($(this).val());
+        var color = null;
+        switch(val){
+          case 0: // Put more colors here
+            color = "#99ccff"; break;
+        }
+        if(color != null){
+          $("#color_value").val(color);
+          $("#annotationcolor-"+id).val(color);
+          $("div.color_picker").css("background-color", color); 
+        }
+      });
+      $(".toggle").live("click", function(e){
+         e.preventDefault();
+         var id = $(this).attr("id");
+         if (id == ""){
+           var url = $(this).attr("href");
+           var sel = $("."+url.substring(1,url.length)+"-container");
+         } else {var sel = $("#"+id+"-container");}
+         sel.toggle();
+      });
+    });
+    
+    </script>
+{% endblock %}

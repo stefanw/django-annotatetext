@@ -1,0 +1,9 @@
+AnnotateText
+========
+
+AnnotateText is a Django App that lets you select parts of a text of some model and write an annotation for it. Nothing too special. Two cool things, though:
+
+ 1. If the original text changes, the selections of this text will try to smartly adapt to the change. And by 'smartly', I mean I use the SequenceMatcher of the difflib module.
+ 2. The annotate.js JavaScript inserts all annotations into one text and can display all of the possible overlapping selections in one text at once. The algorithm for that is not trivial. Some other tricks are also incorporated. The presentation should degrade gracefully.
+
+An example of this App in the wild can be found (in German) on bundestagger.de: http://www.bundestagger.de/16/sitzung/1/#annotation-1

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from difflib import SequenceMatcher
 
-from django import dispatch
+import django.dispatch
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -11,8 +11,7 @@ from django.conf import settings
 
 from bundestagger.account.models import User
 
-ANNOTATION_FLAGS = getattr(settings, "ANNOTATETEXT_FLAGS", (_("Annotation"), ))
-
+ANNOTATION_FLAGS = ("Erklärung", "Quelle?", "Quelle gefunden", "Querverweis", "Wichtig", "Faktisch falsch", "Formatierung/Fehler!", "Kommentar")
 
 class Annotation(models.Model):
     timestamp = models.DateTimeField(auto_now=True)

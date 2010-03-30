@@ -1,0 +1,4 @@
+<blockquote>"{{ obj.selection }}"</blockquote>
+<p> wurde von {% if obj.user %}{{ obj.user }}{% else %}anonym{% endif %} mit der Anmerkung</p>
+<blockquote>{{ obj.comment }}<blockquote>
+<p>({{ obj.flag_value }}) versehen. <a href="{{ obj.get_absolute_url }}">Zur Anmerkung auf BundesTagger.de</a></p>

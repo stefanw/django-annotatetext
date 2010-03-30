@@ -8,6 +8,7 @@ setup(
     author_email='Stefan Wehrmeyer <mail@stefanwehrmeyer.com>',
     url='http://github.com/stefanw/django-annotatetext',
     packages = ["annotatetext", "annotatetext.templatetags"],
+    package_data={'annotatetext': ['templates/annotatetext/*.html']},
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

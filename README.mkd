@@ -1,6 +1,8 @@
 AnnotateText
 ========
 
+NOTE: this is the bundestagger.de branch with some customisations, use master branch to stay generic and up to date
+
 AnnotateText is a Django App that lets you select parts of a text of some model and write an annotation for it. Nothing too special. Two cool things, though:
 
  1. If the original text changes, the selections of this text will try to smartly adapt to the change. And by 'smartly', I mean I use the SequenceMatcher of the difflib module.

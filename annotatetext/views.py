@@ -1,9 +1,12 @@
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed
 from django.template import RequestContext, loader, Context
+
+from bundestagger.account.auth import logged_in, get_user
+from bundestagger.helper.utils import is_post
+
 from forms import NewAnnotationForm
 from models import Annotation
-from bundestagger.account.auth import is_post, logged_in, get_user
 
 @is_post
 def post_annotation(request):

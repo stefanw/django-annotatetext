@@ -133,7 +133,7 @@ Annotations.prototype = {
             var element = annotation_divs[j];
             var annotation = {};
             annotation.counter = j;
-            annotation.id = parseInt($(element).attr("id").split("_")[1]);
+            annotation.id = parseInt($(element).attr("id").split("-")[1]);
             var classes = $(element).find("q").hide().attr("class");
             annotation.color = $(element).css("border-left-color");
             annotation.defaultColor = "inherit";
@@ -247,7 +247,7 @@ Annotations.prototype = {
     },
 
     mark_quotes: function(cls){
-        var color = this.getColorById(cls.split("_")[1]);
+        var color = this.getColorById(cls.split("-")[1]);
         color = this.getColorString(color);
         $("."+cls).css({"background": color});
 //        $("."+cls).children().css({"background": color});
@@ -272,12 +272,12 @@ Annotations.prototype = {
         var obj = this;
         $(".annotationfor-"+this.id).mouseover(function(){
           var o = obj;
-          var aid = $(this).attr("id").split("_")[1];
+          var aid = $(this).attr("id").split("-")[1];
           o.mark_quote(aid);
         });
         $(".annotationfor-"+this.id).mouseout(function(){
           var o = obj;
-          var aid = $(this).attr("id").split("_")[1];
+          var aid = $(this).attr("id").split("-")[1];
           o.clear_quote(aid);
         });
 /*        $(".annotation").mouseover(function(){

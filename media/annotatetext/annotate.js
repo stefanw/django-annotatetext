@@ -91,8 +91,8 @@ Annotations.prototype = {
             new_html = insertAt(new_html, htmlCursor, this.annotations[starts[i]].end_html);
             htmlCursor += this.annotations[starts[i]].end_html.length;
             htmlOffset += this.annotations[starts[i]].end_html.length;
-            $("#a_"+starts[i]).hide();
-            $("#footnotelist-"+this.id).append("<li>"+$("#a_"+starts[i]+" .content").html()+"</li>");
+            $("#annotation-"+starts[i]).hide();
+            $("#footnotelist-"+this.id).append("<li>"+$("#annotation-"+starts[i]+" .content").html()+"</li>");
           }
         }
         var next = this.getNextStartOrEnd(textCursor);
@@ -231,7 +231,7 @@ Annotations.prototype = {
       var offsetMap = {};
       for (var aid in this.annotations){
         var annotop = $(".annotation_"+aid).offset().top;
-        var selftop = $("#a_"+aid).offset().top;
+        var selftop = $("#annotation-"+aid).offset().top;
         if(Math.abs(annotop - selftop) > 200){
           relOffset = Math.abs(annotop - selftop);
           if (typeof offsetMap[annotop] === "undefined"){
@@ -241,7 +241,7 @@ Annotations.prototype = {
         if(annotop - selftop < -300){
           leftOffset = 100;
         }
-        $("#a_"+aid).css({"top": relOffset+offsetMap[annotop]*20, "left": leftOffset+offsetMap[annotop]*20});
+        $("#annotation-"+aid).css({"top": relOffset+offsetMap[annotop]*20, "left": leftOffset+offsetMap[annotop]*20});
         leftOffset = 0;
       }
     },
